@@ -41,7 +41,7 @@ export const createUser = async (req, res) => {
 		// Generate a token (optional, if you want to issue a token upon registration)
 
 		const token = jwt.sign({ id: newUser._id }, process.env.JWT_SECRET, {
-			expiresIn: "20d",
+			expiresIn: "30d",
 		});
 
 		// Send a response
@@ -60,5 +60,54 @@ export const createUser = async (req, res) => {
 	} catch (error) {
 		console.error(error);
 		res.status(500).json({ message: "Server error" });
+	}
+};
+
+export const loginUser = async (req, res) => {
+	const { email, password } = req.body;
+
+	if (!email || !password) {
+		return res.status(400).json({
+			message: "Please enter the email and password",
+		});
+	}
+
+	try {
+		const user = await User.findOne({ email });
+		if (!user) {
+			return res.status(400).json({
+				message: "invalid email or password",
+			});
+		}
+		const isMatch = await bcrypt.compare(password, user.password);
+		if (!isMatch) {
+			res.status(400).json({
+				message: "Invalid email or password",
+			});
+		}
+
+		const token = jwt.sign(
+			{ id: user._id, role: user.role },
+			process.env.JWT_SECRET,
+			{
+				expiresIn: "30d",
+			}
+		);
+
+		res.status(200).json({
+			message: "Login Successfully",
+			user: {
+				id: user._id,
+				name: user.name,
+				email: user.email,
+				role: user.role,
+				description: user.description,
+			},
+			token,
+		});
+	} catch (error) {
+		res.status(500).json({
+			message: "server error",
+		});
 	}
 };

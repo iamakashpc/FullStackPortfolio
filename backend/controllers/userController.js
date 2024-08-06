@@ -2,29 +2,26 @@ import User from "../models/User.js";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 
-// Handler to create a new user
 export const createUser = async (req, res) => {
 	const { name, email, password, role, description } = req.body;
-	// Validate required fields
+
 	if (!name || !email || !password) {
 		return res.status(400).json({
 			message: "Name, email & password are required",
 		});
 	}
+
 	try {
 		const existingUser = await User.findOne({ email });
-		// Check if the user already exists
+
 		if (existingUser) {
 			return res.status(400).json({
-				message: "User is already Exists",
+				message: "User already exists",
 			});
 		}
-		// Hash the password
 
 		const salt = await bcrypt.genSalt(10);
 		const hashedPassword = await bcrypt.hash(password, salt);
-
-		// Create a new user
 
 		const newUser = new User({
 			name,
@@ -34,17 +31,11 @@ export const createUser = async (req, res) => {
 			description,
 		});
 
-		// Save the user to the database
-
 		await newUser.save();
 
-		// Generate a token (optional, if you want to issue a token upon registration)
-
 		const token = jwt.sign({ id: newUser._id }, process.env.JWT_SECRET, {
-			expiresIn: "30d",
+			expiresIn: "365d",
 		});
-
-		// Send a response
 
 		res.status(201).json({
 			message: "User created successfully",
@@ -68,20 +59,23 @@ export const loginUser = async (req, res) => {
 
 	if (!email || !password) {
 		return res.status(400).json({
-			message: "Please enter the email and password",
+			message: "Please enter email and password",
 		});
 	}
 
 	try {
 		const user = await User.findOne({ email });
+
 		if (!user) {
 			return res.status(400).json({
-				message: "invalid email or password",
+				message: "Invalid email or password",
 			});
 		}
+
 		const isMatch = await bcrypt.compare(password, user.password);
+
 		if (!isMatch) {
-			res.status(400).json({
+			return res.status(400).json({
 				message: "Invalid email or password",
 			});
 		}
@@ -90,12 +84,12 @@ export const loginUser = async (req, res) => {
 			{ id: user._id, role: user.role },
 			process.env.JWT_SECRET,
 			{
-				expiresIn: "30d",
+				expiresIn: "365d",
 			}
 		);
 
 		res.status(200).json({
-			message: "Login Successfully",
+			message: "Login successful",
 			user: {
 				id: user._id,
 				name: user.name,
@@ -106,8 +100,19 @@ export const loginUser = async (req, res) => {
 			token,
 		});
 	} catch (error) {
+		console.error(error);
 		res.status(500).json({
-			message: "server error",
+			message: "Server error",
 		});
+	}
+};
+
+export const getUsers = async (req, res) => {
+	try {
+		const users = await User.find().select("-password");
+		res.status(200).json(users);
+	} catch (error) {
+		console.error("Error fetching users:", error);
+		res.status(500).json({ message: "Server error while fetching users" });
 	}
 };

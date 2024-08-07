@@ -5,7 +5,7 @@ import upload from "../middleware/multer.js";
 
 const router = express.Router();
 
-router.post("/skill/create", upload.single("image"), createSkill);
+router.post("/create", upload.single("image"), createSkill);
 
 // Route to get all skills
 router.get("/", getSkills);

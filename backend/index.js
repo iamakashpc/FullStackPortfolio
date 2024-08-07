@@ -13,7 +13,7 @@ app.get("/", (req, res) => {
 DataBaseConnection()
 
 app.use("/api", userRoutes);
-app.use("/api", skillRoutes);
+app.use("/api/skill", skillRoutes);
 app.listen(PORT,()=>{
     console.log(`Server is running on ${PORT}`)
 })

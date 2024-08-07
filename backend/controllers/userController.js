@@ -131,3 +131,47 @@ export const getUserById = async (req, res) => {
 		res.status(500).json({ message: "Server error while fetching user" });
 	}
 };
+
+export const updateUser = async (req,res) => {
+	const { id } = req.params;
+	const { name, email, password, description, status } = req.body;
+	try {
+		if (req.user.role !== "admin" && req.user.id !== id) {
+			return res.status(400).json({
+				message: "You are not authorized ",
+			});
+		}
+		const user = await User.findById(id);
+		if (!user) {
+			return res.status(400).json({
+				message: "User is notfound",
+			});
+		}
+		if (name) user.name = name;
+		if (email) user.email = email;
+		if (description) user.description = description;
+		if (status) user.status = status;
+
+		if (password) {
+			const salt = await bcrypt.genSalt(10);
+			user.password = await bcrypt.hash(password, salt);
+		}
+
+		const updatedUser = await user.save();
+
+		res.status(200).json({
+			message: "User updated successfully",
+			user: {
+				id: updatedUser._id,
+				name: updatedUser.name,
+				email: updatedUser.email,
+				role: updatedUser.role,
+				description: updatedUser.description,
+				status: updatedUser.status,
+			},
+		});
+	} catch (error) {
+		console.error("Error updating user:", error);
+		res.status(500).json({ message: "Server error while updating user" });
+	}
+};

@@ -1,5 +1,5 @@
 import express from "express";
-import { createUser, getUserById, getUsers, loginUser } from "../controllers/userController.js";
+import { createUser, getUserById, getUsers, loginUser, updateUser } from "../controllers/userController.js";
 import { authenticate,authorize } from "../middleware/authMiddleware.js";
 const router = express.Router();
 
@@ -9,5 +9,5 @@ router.post("/register", createUser);
 router.post("/auth/login", loginUser);
 router.get("/users", authenticate, authorize("admin"), getUsers);
 router.get("/user/:id", authenticate, authorize("admin"), getUserById);
-
+router.put("/user/:id", authenticate, updateUser);
 export default router;

@@ -2,6 +2,7 @@ import express from "express";
 import dotenv from "dotenv";
 import DataBaseConnection from "./config/db.js";
 import userRoutes from "./routes/userRoutes.js"
+import skillRoutes from "./routes/skillRoutes.js"
 dotenv.config();
 const PORT = process.env.PORT || 5000;
 const app = express();
@@ -12,6 +13,7 @@ app.get("/", (req, res) => {
 DataBaseConnection()
 
 app.use("/api", userRoutes);
+app.use("/api", skillRoutes);
 app.listen(PORT,()=>{
     console.log(`Server is running on ${PORT}`)
 })

@@ -1,5 +1,4 @@
 import Skills from "../models/Skills.js";
-
 export const createSkill = async (req, res) => {
 	const { name, proficiency } = req.body;
 	const image = req.file ? req.file.path : null;

@@ -24,7 +24,8 @@ const projectSchema = new mongoose.Schema(
 		author: { type: String },
 		status: {
 			type: String,
-			enum: ["In Progress", "Completed", "On Hold", "Archived"],
+			enum: ["In Progress", "Completed", "On Hold", "Archived"], // Correct enum values
+			required: true,
 		},
 		stack: [String],
 	},
